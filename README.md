@@ -16,49 +16,52 @@ Converting a primary data type representation of an ID into an ID object is also
 
 - [Python's own UUID module](https://docs.python.org/3/library/uuid.html) to generate v4 UUIDs with `uuid.uuid4()`.
 - KSUID implementations:
-    - [svix-ksuid](https://pypi.org/project/svix-ksuid/) with the standard second-precision implementation
-    - [cyksuid](https://pypi.org/project/cyksuid/)
-- [ulid-py](https://pypi.org/project/ulid-py/)
-- [timeflake](https://pypi.org/project/timeflake/)
-- [snowflake-id](https://pypi.org/project/snowflake-id/)
-- [cuid2](https://pypi.org/project/cuid2/)
+    - [svix-ksuid](https://pypi.org/project/svix-ksuid/) 0.6.2 with the standard second-precision implementation
+    - [cyksuid](https://pypi.org/project/cyksuid/) 2.1.0
+- [python-ulid](https://pypi.org/project/python-ulid/) 3.1.0
+- [timeflake](https://pypi.org/project/timeflake/) 0.4.3
+- [snowflake-id](https://pypi.org/project/snowflake-id/) 1.0.2
+- [cuid2](https://pypi.org/project/cuid2/) 2.0.1
+- [epyxid](https://pypi.org/project/epyxid/) 0.3.5
 
 
 ## Results
 
 [Full results are available in here](https://github.com/knifecake/python-id-benchmarks/blob/main/results.json).
 
-    ----------------- benchmark 'test_generate': 7 tests -----------------
-    Name (time in ns)                 Mean                StdDev          
-    ----------------------------------------------------------------------
-    generate[snowflake]           492.1435 (1.0)         46.7127 (1.0)    
-    generate[cyksuid]             695.9376 (1.41)       119.0593 (2.55)   
-    generate[python-ulid]       1,719.8319 (3.49)       240.3840 (5.15)   
-    generate[uuid4]             1,961.3799 (3.99)       119.5277 (2.56)   
-    generate[timeflake]         2,637.3506 (5.36)       451.9482 (9.68)   
-    generate[svix]              3,746.8204 (7.61)       685.0287 (14.66)  
-    generate[cuid2]           317,832.6200 (645.81)   4,876.3859 (104.39) 
-    ----------------------------------------------------------------------
+    ----------------------------- benchmark 'test_generate': 8 tests ----------------------------
+    Name (time in ns)                Mean                StdDev            OPS (Kops/s)          
+    ---------------------------------------------------------------------------------------------
+    generate[epyxid]             152.7297 (1.00)        27.6306 (1.00)       6,547.5134 (1.00)    
+    generate[snowflake]          349.7288 (2.29)        50.9443 (1.84)       2,859.3586 (0.44)   
+    generate[cyksuid]          1,182.2310 (7.74)       332.9523 (12.05)        845.8584 (0.13)   
+    generate[python-ulid]      1,615.9206 (10.58)      689.8980 (24.97)        618.8423 (0.09)   
+    generate[svix]             1,967.8533 (12.88)      819.4922 (29.66)        508.1680 (0.08)   
+    generate[uuid4]            1,981.4618 (12.97)      585.6073 (21.19)        504.6779 (0.08)   
+    generate[timeflake]        2,045.0197 (13.39)      633.4886 (22.93)        488.9928 (0.07)   
+    generate[cuid2]           45,255.3875 (296.31)   4,139.3736 (149.81)         22.0968 (0.00)   
+    ---------------------------------------------------------------------------------------------
 
-The fastest library was `snowflake-id` closely followed by `cyksuid`. The rest of the libraries were within the same order of magnitude, except for `cuid2` which was around 600 times slower.
+The fastest library was `epyxid`, followed by `snowflake-id` and `cyksuid`. The rest of the libraries were within the same order of magnitude, except for `cuid2` which was around 296 times slower.
 
-    --------------- benchmark 'test_parse': 5 tests ---------------
-    Name (time in ns)            Mean              StdDev          
-    ---------------------------------------------------------------
-    parse[cyksuid]           477.9390 (1.0)       87.9305 (1.0)    
-    parse[uuid4]           1,373.0170 (2.87)     257.4402 (2.93)   
-    parse[snowflake]       1,542.9839 (3.23)     370.3375 (4.21)   
-    parse[timeflake]       3,866.8549 (8.09)     334.3074 (3.80)   
-    parse[svix]           23,713.3479 (49.62)    952.0104 (10.83)  
-    ---------------------------------------------------------------
+    ---------------------------- benchmark 'test_parse': 6 tests ----------------------------
+    Name (time in ns)            Mean                StdDev            OPS (Kops/s)          
+    ------------------------------------------------------------------------------------------
+    parse[epyxid]            161.4583 (1.00)       232.8999 (1.00)       6,193.5506 (1.00)    
+    parse[cyksuid]           337.8419 (2.09)       419.8448 (1.80)       2,959.9647 (0.48)   
+    parse[uuid4]             843.6934 (5.23)       362.4869 (1.56)       1,185.2647 (0.19)   
+    parse[snowflake]         949.5949 (5.88)       473.3877 (2.03)       1,053.0806 (0.17)   
+    parse[timeflake]       2,448.0551 (15.16)      721.4004 (3.10)         408.4875 (0.07)   
+    parse[svix]           15,123.6512 (93.67)    7,718.2806 (33.14)          66.1216 (0.01)   
+    ------------------------------------------------------------------------------------------
 
 For libraries that allowed serializing and parsing primitive representations, results were very similar to generation.
 
 ## Reproducing the experiment
 
-Measurements were performed with Python 3.11.2 running on Pop!_OS 22.04 LTS (based in Ubuntu / Debian, Linux kernel v6.0.12). Hardware was an MSI Prestige 14 laptop purchased in September 2020 with an Intel(R) Core(TM) i7-10710U CPU with 16GB of RAM.
+Measurements were performed with Python 3.12.2 running on macOS 24.3.0. Hardware was a MacBook Pro with an Apple Silicon M1 chip.
 
-To reproduce the results, install Python 3.11.2 and then install all required packages with `pip install -r requirements.txt` (it is recommended to use a [virtual environment](https://github.com/pypa/virtualenv)).
+To reproduce the results, install Python 3.12.2 and then install all required packages with `uv sync` (it is recommended to use a virtual environment created with `uv venv`).
 
 Use GNU `make` to run the benchmark suite with
 
