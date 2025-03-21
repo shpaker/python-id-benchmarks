@@ -1,8 +1,9 @@
 import uuid
 
 import pytest
+import epyxid
 import timeflake
-from cuid2 import CUID
+from cuid2 import Cuid
 from cyksuid.v2 import ksuid as cy_ksuid
 from cyksuid.v2 import parse as cy_parse
 from ksuid import Ksuid as SvixKsuid
@@ -19,8 +20,9 @@ snowflake_gen = SnowflakeGenerator(42)
         pytest.param(cy_ksuid, id="cyksuid"),
         pytest.param(python_ulid, id="python-ulid"),
         pytest.param(snowflake_gen.__next__, id="snowflake"),
-        pytest.param(CUID().generate, id="cuid2"),
+        pytest.param(Cuid().generate, id="cuid2"),
         pytest.param(timeflake.random, id="timeflake"),
+        pytest.param(epyxid.XID, id="epyxid"),
     ],
 )
 def test_generate(benchmark, gen):
@@ -33,7 +35,8 @@ def test_generate(benchmark, gen):
         pytest.param(cy_parse, "Afwp2wWXH1RpvLDMXQkmZtUlWzr", id="cyksuid"),
         pytest.param(uuid.UUID, "03e36797-f3c1-47ac-ba34-9daccece7e30", id='uuid4'),
         pytest.param(Snowflake.parse, 7035582051483033600, id="snowflake"),
-        pytest.param(lambda x: timeflake.parse(from_base62=x), "0002HCZffkHWhKPVdXxs0YH", id="timeflake")
+        pytest.param(lambda x: timeflake.parse(from_base62=x), "0002HCZffkHWhKPVdXxs0YH", id="timeflake"),
+        pytest.param(epyxid.xid_from_str, "cnisffq7qo0qnbtbu5gg", id="epyxid"),
     ],
 )
 def test_parse(benchmark, parse, val):

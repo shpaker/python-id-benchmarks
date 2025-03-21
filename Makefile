@@ -1,7 +1,8 @@
 .PHONY: run
 run:
-	pytest bench.py \
+	uv run python -m pytest bench.py \
 		--benchmark-group-by=func \
 		--benchmark-autosave \
 		--benchmark-name=short \
-		--benchmark-columns=mean,stddev
+		--benchmark-columns=mean,stddev,OPS \
+		--benchmark-json=results.json
